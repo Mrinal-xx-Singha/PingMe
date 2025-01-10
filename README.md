@@ -3,6 +3,9 @@
 
 Real-time Communication App
 
+**PingMe** is a real-time web application for seamless communication, built using modern web technologies like React, Node.js, and MongoDB. It supports secure authentication, dynamic notifications, and a responsive UI, delivering a user-friendly experience.
+
+
 ## Features
 
 * **Real-Time Messaging:** Built with Socket.io for instant updates.

@@ -1,7 +1,7 @@
 
 # PingMe
 
-A fully functional CRUD app which lets you create workout plans Read it as well as  Update it on the go.
+Real-time Communication App
 
 ## Features
 

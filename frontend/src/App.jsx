@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
-import SignUpPage from "./pages/SignUpPage"
+import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
 import SettingsPage from "./pages/SettingsPage";
@@ -13,16 +13,12 @@ import { Toaster } from "react-hot-toast";
 import { useThemeStore } from "./store/useThemeStore";
 
 const App = () => {
-  const { authUser, checkAuth, isCheckingAuth,onlineUsers } = useAuthStore();
+  const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const { theme } = useThemeStore();
-
-  console.log(onlineUsers);
-  
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
-  console.log(authUser);
   if (isCheckingAuth && !authUser) {
     return (
       <div className="flex items-center justify-center h-screen">

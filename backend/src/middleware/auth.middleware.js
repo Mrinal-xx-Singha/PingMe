@@ -1,5 +1,13 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
+/**
+ * Checks for a jwt token in cookies
+ * verifies it 
+ * retrieves the user from the database
+ * Attaches the user to the req object if valid
+ * 
+ * 
+ */
 
 export const protectRoute = async (req, res, next) => {
   try {

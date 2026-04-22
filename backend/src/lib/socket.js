@@ -3,10 +3,16 @@ import { Server } from "socket.io";
 import http from "http";
 
 const app = express();
+//we wrap the app and make it a server
+// HTTP server for API routes
+
 const server = http.createServer(app);
+
+// Initializes a socket.io server on top of the HTTP server
 
 const io = new Server(server, {
   cors: {
+    // enable cors for frontend
     origin: ["http://localhost:5173"],
   },
 });

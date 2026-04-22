@@ -12,6 +12,7 @@ export const getUsersForSidebar = async (req, res) => {
     }
 
     const filteredUsers = await User.find({
+      // fetch all users except the current one
       _id: { $ne: loggedInUserId },
     }).select("-password -__v"); // Exclude sensitive fields
 
@@ -31,26 +32,42 @@ export const getMessages = async (req, res) => {
       return res.status(400).json({ error: "Invalid user IDs" });
     }
 
-    const messages = await Message.find({
-      $or: [
-        {
-          senderId: myId,
-          receiverId: userToChatId,
-        },
-        {
-          senderId: userToChatId,
-          receiverId: myId,
-        },
-      ],
-    }).sort({ createdAt: 1 }); // Ensure messages are sorted chronologically
+    // Cursor-based pagination: `limit` controls batch size, `before` is the
+    // oldest message _id from the previous fetch used as a cursor.
+    const limit = parseInt(req.query.limit) || 20;
+    const before = req.query.before; // message _id cursor
 
-    res.status(200).json(messages);
+    const baseQuery = {
+      $or: [
+        { senderId: myId, receiverId: userToChatId },
+        { senderId: userToChatId, receiverId: myId },
+      ],
+    };
+
+    // When a cursor is provided, only fetch messages older than it
+    if (before) {
+      baseQuery._id = { $lt: before };
+    }
+
+    // Fetch one extra message to determine if there are more pages
+    const messages = await Message.find(baseQuery)
+      .sort({ _id: -1 }) // newest first so we can limit efficiently
+      .limit(limit + 1)
+      .lean();
+
+    const hasMore = messages.length > limit;
+
+    // Remove the extra lookahead message and reverse to chronological order
+    const payload = messages.slice(0, limit).reverse();
+
+    res.status(200).json({ messages: payload, hasMore });
   } catch (error) {
     console.error("Error in getMessages controller:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
+// Allows a user to send a message(text or image).if the receiver is online,it sends the
+// message in real-time using Socket.io
 export const sendMessage = async (req, res) => {
   try {
     const { text, image } = req.body;
@@ -61,6 +78,7 @@ export const sendMessage = async (req, res) => {
       return res.status(400).json({ error: "Invalid user IDs" });
     }
 
+    // Must have either text or image
     if (!text?.trim() && !image) {
       return res
         .status(400)
@@ -70,10 +88,12 @@ export const sendMessage = async (req, res) => {
     let imageUrl = null;
 
     if (image) {
+      // cloudinary is used to store the image in base64 format
       try {
         const uploadResponse = await cloudinary.uploader.upload(image, {
           folder: "messages",
         });
+
         imageUrl = uploadResponse.secure_url;
       } catch (cloudError) {
         console.error("Cloudinary upload failed:", cloudError.message);
@@ -90,7 +110,7 @@ export const sendMessage = async (req, res) => {
 
     await newMessage.save();
 
-    // Placeholder for real-time functionality (e.g., Socket.IO)
+    // Placeholder for real-time functionality
     // socket.emit("newMessage", newMessage);
 
     const receiverSocketId = getReceiverSocketId(receiverId);

@@ -4,8 +4,10 @@ import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 
 const ChatHeader = () => {
-  const { selectedUser, setSelected } = useChatStore();
+  const { selectedUser, setSelected, typingUsers } = useChatStore();
   const { onlineUsers } = useAuthStore();
+
+  const isTyping = typingUsers.includes(selectedUser._id)
   return (
     <div className="p-2.5 border-b border-base-300">
       <div className="flex items-center justify-between">
@@ -33,6 +35,13 @@ const ChatHeader = () => {
           <X />
         </button>
       </div>
+      {
+        isTyping && (
+          <span className="text-sm text-green-500 italic">
+            Typing...
+          </span>
+        )
+      }
     </div>
   );
 };

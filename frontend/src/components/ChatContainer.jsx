@@ -16,6 +16,8 @@ const ChatContainer = () => {
     hasMoreMessages,
     selectedUser,
     subscribeToMessages,
+    subscribeToTyping,
+    unsubscribeFromTyping,
     unsubscribeFromMessages,
   } = useChatStore();
 
@@ -34,9 +36,13 @@ const ChatContainer = () => {
   useEffect(() => {
     isInitialLoad.current = true;
     getMessages(selectedUser._id);
+    subscribeToTyping()
     subscribeToMessages();
-    return () => unsubscribeFromMessages();
-  }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
+    return () => {
+      unsubscribeFromMessages();
+      unsubscribeFromTyping()
+    }
+  }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages, subscribeToTyping, unsubscribeFromTyping]);
 
   // Scroll to bottom on initial load OR when a new real-time message arrives
   useEffect(() => {
@@ -141,11 +147,10 @@ const ChatContainer = () => {
 
                 <div className="flex flex-col items-end">
                   <div
-                    className={`rounded-2xl px-4 py-2.5 shadow-sm ${
-                      isCurrentUser
+                    className={`rounded-2xl px-4 py-2.5 shadow-sm ${isCurrentUser
                         ? "bg-primary text-primary-content"
                         : "bg-base-200 text-base-content"
-                    }`}
+                      }`}
                   >
                     {message.image && (
                       <img
@@ -157,6 +162,7 @@ const ChatContainer = () => {
                     {message.text && (
                       <p className="text-sm leading-relaxed">{message.text}</p>
                     )}
+                    
                   </div>
                   <time className="text-[10px] text-base-content/60 mt-1">
                     {formatMessageTime(message.createdAt)}

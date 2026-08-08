@@ -9,10 +9,35 @@ export const useChatStore = create((set, get) => ({
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
+  typingUsers: [],
   // --- Pagination state ---
   hasMoreMessages: false,
   isLoadingMoreMessages: false,
   oldestMessageId: null, // cursor: _id of the oldest message currently loaded
+
+  subscribeToTyping: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return
+    socket.on('userTyping', ({ senderId }) => {
+      set((state) => ({
+        typingUsers: [...new Set([...state.typingUsers, senderId])]
+      }))
+
+    })
+
+    socket.on("userStoppedTyping", ({ senderId }) => {
+      // Remove user from typing list 
+      set((state) => ({
+        typingUsers: state.typingUsers.filter((id) => id !== senderId)
+      }))
+    })
+  },
+  unsubscribeFromTyping: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return
+    socket.off("userTyping")
+    socket.off("userStoppedTyping")
+  },
 
   getUsers: async () => {
     set({ isUsersLoading: true });

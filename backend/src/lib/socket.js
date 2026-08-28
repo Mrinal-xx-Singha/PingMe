@@ -1,6 +1,7 @@
 import express from "express";
 import { Server } from "socket.io";
 import http from "http";
+import Group from "../models/group.model.js";
 
 const app = express();
 //we wrap the app and make it a server
@@ -24,11 +25,21 @@ export function getReceiverSocketId(userId) {
 //{userId:socketId}
 const userSocketMap = {};
 
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
   console.log("A user connected", socket.id);
 
   const userId = socket.handshake.query.userId;
   if (userId) userSocketMap[userId] = socket.id;
+
+  try {
+    // Find all groups this user is a member of 
+    const userGroups = await Group.find({ members: userId })
+    userGroups.forEach(group => {
+      socket.join(group._id.toString())
+    })
+  } catch (error) {
+    console.error("Socket group join error:", error);
+  }
   //   io.emit is used to send an event to all connected clients
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 

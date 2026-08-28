@@ -10,6 +10,8 @@ export const useChatStore = create((set, get) => ({
   isUsersLoading: false,
   isMessagesLoading: false,
   typingUsers: [],
+  groups: [],
+  isGroupLoading: false,
   // --- Pagination state ---
   hasMoreMessages: false,
   isLoadingMoreMessages: false,
@@ -51,12 +53,28 @@ export const useChatStore = create((set, get) => ({
       set({ isUsersLoading: false });
     }
   },
+  getGroups: async () => {
+    set({ isGroupLoading: true })
+    try {
+      const res = await axiosInstance.get("/groups")
+      set({ groups: res.data })
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to fetch groups")
+
+    } finally {
+      set({ isGroupLoading: false })
+    }
+
+  },
 
   // Initial load — resets pagination state for the selected user
   getMessages: async (userId) => {
     set({ isMessagesLoading: true, messages: [], hasMoreMessages: false, oldestMessageId: null });
     try {
-      const res = await axiosInstance.get(`/message/${userId}?limit=20`);
+      const endPoint = get().selectedUser?.isGroup
+        ? `/message/group/${userId}?limit=20` :
+        `/message/${userId}?limit=20`
+      const res = await axiosInstance.get(endPoint);
       const { messages, hasMore } = res.data;
       set({
         messages,
@@ -77,9 +95,9 @@ export const useChatStore = create((set, get) => ({
 
     set({ isLoadingMoreMessages: true });
     try {
-      const res = await axiosInstance.get(
-        `/message/${userId}?limit=20&before=${oldestMessageId}`
-      );
+      const endPoint = get().selectedUser?.isGroup ? `/message/group/${userId}?limit=20&before=${oldestMessageId}` : `/message/${userId}?limit=20&before=${oldestMessageId}`
+      const res = await axiosInstance.get(endPoint);
+
       const { messages: olderMessages, hasMore } = res.data;
       set({
         messages: [...olderMessages, ...messages], // prepend older messages
@@ -96,10 +114,9 @@ export const useChatStore = create((set, get) => ({
   sendMessage: async (messageData) => {
     const { selectedUser, messages } = get();
     try {
-      const res = await axiosInstance.post(
-        `/message/send/${selectedUser._id}`,
-        messageData
-      );
+      const endPoint = selectedUser.isGroup ? `/message/group/send/${selectedUser._id}` : `/message/send/${selectedUser._id}`
+      const res = await axiosInstance.post(endPoint, messageData);
+
       set({ messages: [...messages, res.data] });
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to send message");
@@ -112,7 +129,13 @@ export const useChatStore = create((set, get) => ({
 
     const socket = useAuthStore.getState().socket;
     socket.on("newMessage", (newMsg) => {
-      if (newMsg.senderId !== selectedUser._id) return;
+      // If its a group check if the message belongs to this group 
+      if (selectedUser.isGroup) {
+        if (newMsg.groupId !== selectedUser._id) return
+      } else {
+        //  if direct message, check if its from the selected user
+        if (newMsg.senderId !== selectedUser._id) return;
+      }
       set({ messages: [...get().messages, newMsg] });
     });
   },

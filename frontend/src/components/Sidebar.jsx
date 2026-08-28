@@ -5,7 +5,7 @@ import { Users, Search } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 
 const Sidebar = () => {
-  const { getUsers, users, selectedUser, setSelected, isUsersLoading } =
+  const { getUsers, users, selectedUser, setSelected, isUsersLoading, getGroups, groups } =
     useChatStore();
   const { onlineUsers } = useAuthStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
@@ -13,12 +13,24 @@ const Sidebar = () => {
 
   useEffect(() => {
     getUsers();
-  }, [getUsers]);
+    getGroups()
+  }, [getUsers, getGroups]);
 
-  const filteredUsers = users.filter(user => 
+  // Filter the online/offlicec users 
+  const mappedUsers = users.filter(user =>
     (!showOnlineOnly || onlineUsers.includes(user._id)) &&
     user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const mappedGroups = groups.filter(group => group.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    .map(group => ({
+      ...group,
+      fullName: group.name, //map group.name to fullName 
+      profilePic: group.groupPic, // map group.groupPic to profilePic
+      isGroup: true, // our special flag 
+    }))
+
+  const sidebarItems = [...mappedGroups, ...mappedUsers]
 
   if (isUsersLoading) return <SidebarSkeleton />;
 
@@ -32,7 +44,7 @@ const Sidebar = () => {
 
         {/* Search Input */}
         <div className="relative hidden lg:block">
-          <input 
+          <input
             type="text"
             placeholder="Search contacts..."
             value={searchTerm}
@@ -60,27 +72,28 @@ const Sidebar = () => {
       </div>
 
       <div className="overflow-y-auto w-full py-2">
-        {filteredUsers.map((user) => (
+        {sidebarItems.map((item) => (
           <button
-            key={user._id}
-            onClick={() => setSelected(user)}
+            key={item._id}
+            onClick={() => setSelected(item)}
             className={`
               w-full px-5 py-3 flex items-center gap-4 
               hover:bg-base-300 transition-colors group
-              ${selectedUser?._id === user._id 
-                ? "bg-base-300 ring-1 ring-base-300" 
+              ${selectedUser?._id === item._id
+                ? "bg-base-300 ring-1 ring-base-300"
                 : "hover:bg-base-300/50"}
             `}
           >
+
             <div className="relative shrink-0">
               <img
-                src={user.profilePic || "/avatar.png"}
-                alt={user.name}
+                src={item.profilePic ||( item.isGroup ? "/group-avatar.png" : "/avatar.png")}
+                alt={item.name}
                 className="size-12 object-cover rounded-full 
                   group-hover:scale-105 transition-transform
                   group-active:scale-95"
               />
-              {onlineUsers.includes(user._id) && (
+              {onlineUsers.includes(item._id) && (
                 <span
                   className="absolute bottom-0 right-0 size-3 
                   bg-green-500 rounded-full 
@@ -92,16 +105,16 @@ const Sidebar = () => {
             {/* User info - only visible on larger screens */}
             <div className="hidden lg:block text-left min-w-0 flex-1">
               <div className="font-medium truncate text-base-content">
-                {user.fullName}
+                {item.fullName}
               </div>
               <div className="text-sm text-base-content/60">
-                {onlineUsers.includes(user._id) ? "Online" : "Offline"}
+                {onlineUsers.includes(item._id) ? "Online" : "Offline"}
               </div>
             </div>
           </button>
         ))}
 
-        {filteredUsers.length === 0 && (
+        {sidebarItems.length === 0 && (
           <div className="text-center py-10 text-base-content/60">
             No contacts found
           </div>

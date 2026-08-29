@@ -66,6 +66,16 @@ export const useChatStore = create((set, get) => ({
     }
 
   },
+  createGroup: async (groupData) => {
+    try {
+      const res = await axiosInstance.post("/groups", groupData)
+      set({ groups: [...get().groups, res.data] })
+      toast.success("Group created successfull!")
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to create group")
+    }
+
+  },
 
   // Initial load — resets pagination state for the selected user
   getMessages: async (userId) => {

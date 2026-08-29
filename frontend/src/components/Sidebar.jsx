@@ -3,6 +3,7 @@ import { useChatStore } from "../store/useChatStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { Users, Search } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
+import CreateGroupModal from "./CreateGroupModal";
 
 const Sidebar = () => {
   const { getUsers, users, selectedUser, setSelected, isUsersLoading, getGroups, groups } =
@@ -10,6 +11,7 @@ const Sidebar = () => {
   const { onlineUsers } = useAuthStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isModelOpen,setIsModalOpen] = useState(false)
 
   useEffect(() => {
     getUsers();
@@ -38,8 +40,15 @@ const Sidebar = () => {
     <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col bg-base-200 transition-all duration-200">
       <div className="border-b border-base-300 p-5 space-y-4">
         <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
           <Users className="size-6 text-base-content/70" />
-          <span className="font-medium hidden lg:block text-base-content">Contacts</span>
+<span className="font-medium hidden lg:block text-base-content">Contacts</span>
+          </div>
+          <button
+          onClick={()=>setIsModalOpen(true)}
+          className="btn btn-sm btn-ghost btn-circle text-lg hidden lg:flex"
+          >+</button>
+        
         </div>
 
         {/* Search Input */}
@@ -120,6 +129,10 @@ const Sidebar = () => {
           </div>
         )}
       </div>
+      <CreateGroupModal 
+      isOpen={isModelOpen}
+      onClose={()=>setIsModalOpen(false)}
+      />
     </aside>
   );
 };

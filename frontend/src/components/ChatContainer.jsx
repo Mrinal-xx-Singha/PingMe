@@ -129,10 +129,20 @@ const ChatContainer = () => {
 
         {messages.map((message) => {
           const isCurrentUser = message.senderId === authUser._id;
-          const profilePic = isCurrentUser
-            ? authUser.profilePic || "/avatar.png"
-            : selectedUser.profilePic || "/avatar.png";
+          
+          
+          let profilePic = "/avatar.png"
 
+          if(isCurrentUser){
+            profilePic = authUser.profilePic || "/avatar.png"
+          }else if(selectedUser.isGroup){
+            const sendUser = useChatStore.getState().users.find(u=>u._id === message.senderId)
+            profilePic = sendUser?.profilePic || "/avatar.png"
+          }else{
+            profilePic = selectedUser.profilePic || "/avatar.png"
+          }
+
+          
           return (
             <div
               key={message._id}

@@ -49,6 +49,7 @@ const availableUsers = users.filter((u)=>!selectedUser.members?.includes(u._id))
                 ))}
             </select>
             <button
+            onClick={handleAdd}
             className='btn btn-primary w-full'
             >Add to Group</button>
         </div>

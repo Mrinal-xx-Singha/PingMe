@@ -5,6 +5,7 @@ import { MessageSquare, Mail, EyeOff, Eye, Loader2, Lock } from "lucide-react";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true)
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -97,9 +98,8 @@ const LoginPage = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              className={`btn btn-primary w-full flex justify-center items-center gap-2 ${
-                isLoggingIn ? "opacity-70 cursor-not-allowed" : ""
-              }`}
+              className={`btn btn-primary w-full flex justify-center items-center gap-2 ${isLoggingIn ? "opacity-70 cursor-not-allowed" : ""
+                }`}
               disabled={isLoggingIn}
             >
               {isLoggingIn ? (
@@ -129,15 +129,21 @@ const LoginPage = () => {
       </div>
 
       {/* Right Side - Illustration */}
-      <div className="hidden lg:flex items-center justify-center bg-primary/10">
-        <div className="text-center p-12">
-          <h2 className="text-3xl font-bold text-primary mb-4">
-            Simplify Communication
-          </h2>
-          <p className="text-gray-700">
-            Connect with your team and clients in a seamless way with PingMe.
-          </p>
-        </div>
+      <div className="hidden lg:block relative w-full h-full">
+        {/* Loading Spinner */}
+        {imageLoading && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Loader2 className="w-12 h-12 text-primary animate-spin" />
+          </div>
+        )}
+        <img
+          src="/login.jpeg"
+          alt="welcome back"
+          onLoad={() => setImageLoading(false)}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${imageLoading ? "opacity-0" : "opacity-100"
+            }`}
+        />
+
       </div>
     </div>
   );

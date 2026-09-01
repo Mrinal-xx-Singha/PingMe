@@ -19,9 +19,9 @@ const ChatHeader = () => {
           <div className="avatr">
             <div className="size-10 rounded-full relative">
               <img
-                src={selectedUser.profilePic || (selectedUser.isGroup ? "/grup-avataar.png" : "/avatar.png")}
+                src={selectedUser.profilePic || (selectedUser.isGroup ? "/group-image.jpeg" : "/avatar.png")}
                 alt={selectedUser.fullName}
-                className="size-full object-cover"
+                className="size-full object-cover rounded-full"
               />
             </div>
           </div>

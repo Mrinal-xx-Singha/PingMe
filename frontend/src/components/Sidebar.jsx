@@ -96,7 +96,7 @@ const Sidebar = () => {
 
             <div className="relative shrink-0">
               <img
-                src={item.profilePic ||( item.isGroup ? "/group-avatar.png" : "/avatar.png")}
+                src={item.profilePic ||( item.isGroup ? "/group-image.jpeg" : "/avatar.png")}
                 alt={item.name}
                 className="size-12 object-cover rounded-full 
                   group-hover:scale-105 transition-transform

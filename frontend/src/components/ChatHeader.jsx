@@ -3,11 +3,13 @@ import { X } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import AddMemberModal from "./AddMemberModal";
+import ManageGroupModal from "./ManageGroupModal";
 
 const ChatHeader = () => {
   const { selectedUser, setSelected, typingUsers } = useChatStore();
   const { onlineUsers, authUser } = useAuthStore();
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false)
+  const [isManageOpen,setIsManageOpen]= useState(false)
 
 
   const isTyping = typingUsers.includes(selectedUser._id)
@@ -36,10 +38,19 @@ const ChatHeader = () => {
         {/* Close btn */}
         <div className="flex items-center gap-2 ">
           {selectedUser.isGroup && selectedUser.adminId === authUser._id && (
-            <button
+          <div className="flex gap-2 mr-2">
+
+          <button
               onClick={() => setIsAddMemberOpen(true)}
               className="btn btn-xs btn-primary"
-            >Add Member</button>
+              >Add Member</button>
+              <button
+              onClick={()=>setIsManageOpen(true)}
+              className="btn btn-xs btn-secondary"
+              >
+                Manage
+              </button>
+              </div>
           )}
           <button onClick={() => setSelected(null)}
             className="btn btn-ghost btn-sm btn-circle"
@@ -56,6 +67,7 @@ const ChatHeader = () => {
         )}
 
       <AddMemberModal isOpen={isAddMemberOpen} onClose={() => setIsAddMemberOpen(false)} />
+   <ManageGroupModal isOpen={isManageOpen} onClose={()=>setIsManageOpen(false)}/>
     </div>
   );
 };

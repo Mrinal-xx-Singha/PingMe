@@ -76,6 +76,23 @@ export const useChatStore = create((set, get) => ({
     }
 
   },
+  removeMember: async (groupId, memberId) => {
+    try {
+      await axiosInstance.delete(`/groups/${groupId}/members/${memberId}`)
+
+      // Update the currently selected group so the UI updates instantly
+      const currentSelected = get().selectedUser;
+      if (currentSelected && currentSelected._id === groupId) {
+        // Filter out the member (handle both populated objects and raw ID string)
+        const updatedMembers = currentSelected.members.filter(m => (typeof m === "object" ? m._id !== memberId : m !== memberId))
+        set({ selectedUser: { ...currentSelected, members: updatedMembers } })
+      }
+      toast.success("Member removed")
+      get().getGroups() //Refreshes the sidebar data quietly in the background 
+    } catch (error) {
+      toast.error(error.response?.data?.error || "Failed to remove member")
+    }
+  },
 
   // Initial load — resets pagination state for the selected user
   getMessages: async (userId) => {

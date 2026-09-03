@@ -70,3 +70,39 @@ export const addMembersToGroup = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 }
+
+export const removeMemberFromGroup = async (req, res) => {
+    try {
+        const { groupId, memberId } = req.params
+        const currentUserId = req.user._id
+
+        const group = await Group.findById(groupId)
+        if (!group) return res.status(404).json({ error: "Group not found" })
+
+        // Two types of people can remove a member 
+        // The admin 
+        // The member themselves 
+
+        const isAdmin = group.adminId.toString() === currentUserId.toString()
+        const isSelf = currentUserId.toString() === memberId
+
+        if (!isAdmin && !isSelf) {
+            return res.status(403).json({ error: "You dont have permission to remove this member" })
+        }
+
+        // Prevent the admin from removing themselves (to avoid leaderless group )
+        if (memberId === group.adminId.toString()) {
+            return res.status(400).json({ error: "The admin cannot leave the group. You must delete the group instead" })
+
+        }
+        // Filter out the member we want to remove 
+
+        group.members = group.members.filter(id => id.toString() !== memberId)
+        await group.save()
+
+        res.status(200).json(group)
+    } catch (error) {
+        console.error("Error removing member:", error.message);
+        res.status(500).json({ error: "Internal server error" });
+    }
+}

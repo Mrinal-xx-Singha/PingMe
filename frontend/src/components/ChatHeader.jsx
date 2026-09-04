@@ -52,6 +52,20 @@ const ChatHeader = () => {
               </button>
               </div>
           )}
+          {selectedUser.isGroup && selectedUser.adminId !== authUser._id && (
+            <button
+            onClick={async()=>{
+              if(window.confirm("Are you sure you want to leave this group ? ")){
+                await useChatStore.getState().removeMember(selectedUser._id,authUser._id)
+                setSelected(null)
+              }
+            }}
+            className="btn btm-xs btn-error btn-outline mr-2"
+            >
+              Leave
+            </button>
+          )}
+          {/* Close Chat Button */}
           <button onClick={() => setSelected(null)}
             className="btn btn-ghost btn-sm btn-circle"
           >

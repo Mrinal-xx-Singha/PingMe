@@ -7,16 +7,15 @@ const WatchParty = () => {
     const { selectedUser, activeVideoUrl, videoAction, videoTime, syncVideo, endWatchParty } = useChatStore();
     const playerRef = useRef(null);
     const [playing, setPlaying] = useState(true);
-    const [localTime, setLocalTime] = useState(0); // Safely track time here!
 
     // Sync incoming socket events with our local player
     useEffect(() => {
         if (videoAction === "pause") setPlaying(false);
         if (videoAction === "play") setPlaying(true);
         if (videoAction === "seek" && playerRef.current) {
-            // Safely check if seekTo is available before calling it to prevent crashes
-            if (typeof playerRef.current.seekTo === 'function') {
-                playerRef.current.seekTo(videoTime);
+            // v3 SYNTAX: We use .currentTime instead of .seekTo()
+            if (Math.abs(playerRef.current.currentTime - videoTime) > 2) {
+                playerRef.current.currentTime = videoTime;
             }
         }
     }, [videoAction, videoTime]);
@@ -41,22 +40,23 @@ const WatchParty = () => {
             <div className="w-full aspect-video bg-black rounded-lg overflow-hidden shadow-inner">
                 <ReactPlayer
                     ref={playerRef}
-                    url={activeVideoUrl}
+                    src={activeVideoUrl}
                     width="100%"
                     height="100%"
                     playing={playing}
                     controls={true}
-                    // Safely track the time every second without using refs
-                    onProgress={(progress) => setLocalTime(progress.playedSeconds)}
+
                     onPlay={() => {
                         setPlaying(true);
-                        syncVideo(selectedUser._id, 'play', localTime);
+                        syncVideo(selectedUser._id, 'play', playerRef.current?.currentTime || 0);
                     }}
                     onPause={() => {
                         setPlaying(false);
-                        syncVideo(selectedUser._id, "pause", localTime);
+                        syncVideo(selectedUser._id, "pause", playerRef.current?.currentTime || 0);
                     }}
-                    onSeeked={(time) => syncVideo(selectedUser._id, 'seek', time)}
+                    onSeeked={() => {
+                        syncVideo(selectedUser._id, 'seek', playerRef.current?.currentTime || 0);
+                    }}
                 />
             </div>
         </div>

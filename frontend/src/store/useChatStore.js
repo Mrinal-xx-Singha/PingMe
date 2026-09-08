@@ -17,6 +17,12 @@ export const useChatStore = create((set, get) => ({
   isLoadingMoreMessages: false,
   oldestMessageId: null, // cursor: _id of the oldest message currently loaded
 
+  // -- Watch party states ---
+  activeVideoUrl: null,
+  videoAction: null,
+  videoTime: 0,
+
+
   subscribeToTyping: () => {
     const socket = useAuthStore.getState().socket;
     if (!socket) return
@@ -39,6 +45,49 @@ export const useChatStore = create((set, get) => ({
     if (!socket) return
     socket.off("userTyping")
     socket.off("userStoppedTyping")
+  },
+  subscribeToWatchParty: () => {
+    const socket = useAuthStore.getState().socket
+    if (!socket) return
+
+    socket.on("watchPartyStarted", ({ videoUrl }) => {
+      set({ activeVideoUrl: videoUrl, videoAction: 'play', videoTime: 0 })
+      toast.success("A Watch Party has started 🍿")
+    })
+
+    socket.on("videoSynced", ({ action, time }) => {
+      set({ videoAction: action, videoTime: time })
+    })
+
+    socket.on("watchPartyEnded", () => {
+      set({ activeVideoUrl: null })
+      toast.error("Watch Party ended.")
+    })
+  },
+  unsubscribeFromWatchParty: () => {
+    const socket = useAuthStore.getState().socket
+    if (!socket) return
+    socket.off("watchPartyStarted")
+    socket.off("videoSynced")
+    socket.off("watchPartyEnded")
+  },
+
+  // Call these when the CURRENT user clicks a button
+  startWatchParty: (groupId, videoUrl) => {
+    const socket = useAuthStore.getState().socket
+    set({ activeVideoUrl: videoUrl, videoAction: "play", videoTime: 0 })
+    socket.emit("startWatchParty", { groupId, videoUrl })
+
+  },
+  syncVideo: (groupId, action, time) => {
+    const socket = useAuthStore.getState().socket
+    set({ videoAction: action, videoTime: time })
+    socket.emit("syncVideo", { groupId, action, time })
+  },
+  endWatchParty: (groupId) => {
+    const socket = useAuthStore.getState().socket
+    set({ activeVideoUrl: null })
+    socket.emit("endWatchParty", { groupId })
   },
 
   getUsers: async () => {

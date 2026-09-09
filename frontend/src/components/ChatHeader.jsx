@@ -9,7 +9,7 @@ const ChatHeader = () => {
   const { selectedUser, setSelected, typingUsers } = useChatStore();
   const { onlineUsers, authUser } = useAuthStore();
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false)
-  const [isManageOpen,setIsManageOpen]= useState(false)
+  const [isManageOpen, setIsManageOpen] = useState(false)
 
 
   const isTyping = typingUsers.includes(selectedUser._id)
@@ -38,32 +38,42 @@ const ChatHeader = () => {
         {/* Close btn */}
         <div className="flex items-center gap-2 ">
           {selectedUser.isGroup && selectedUser.adminId === authUser._id && (
-          <div className="flex gap-2 mr-2">
+            <div className="flex gap-2 mr-2">
 
-          <button
-              onClick={() => setIsAddMemberOpen(true)}
-              className="btn btn-xs btn-primary"
+              <button
+                onClick={() => setIsAddMemberOpen(true)}
+                className="btn btn-xs btn-primary"
               >Add Member</button>
               <button
-              onClick={()=>setIsManageOpen(true)}
-              className="btn btn-xs btn-secondary"
+                onClick={() => setIsManageOpen(true)}
+                className="btn btn-xs btn-secondary"
               >
                 Manage
               </button>
-              </div>
+            </div>
           )}
           {selectedUser.isGroup && selectedUser.adminId !== authUser._id && (
             <button
-            onClick={async()=>{
-              if(window.confirm("Are you sure you want to leave this group ? ")){
-                await useChatStore.getState().removeMember(selectedUser._id,authUser._id)
-                setSelected(null)
-              }
-            }}
-            className="btn btm-xs btn-error btn-outline mr-2"
+              onClick={async () => {
+                if (window.confirm("Are you sure you want to leave this group ? ")) {
+                  await useChatStore.getState().removeMember(selectedUser._id, authUser._id)
+                  setSelected(null)
+                }
+              }}
+              className="btn btm-xs btn-error btn-outline mr-2"
             >
               Leave
             </button>
+          )}
+          {selectedUser.isGroup && (
+            <button
+              onClick={() => {
+                const url = window.prompt("Enter a Youtube URL to start a watch prty:")
+                if (url) useChatStore.getState().startWatchParty(selectedUser._id, url)
+              }}
+              className="btn btn-xs btn-accent mr-2"
+              title="Start Watch Party"
+            >🍿 Watch</button>
           )}
           {/* Close Chat Button */}
           <button onClick={() => setSelected(null)}
@@ -81,7 +91,7 @@ const ChatHeader = () => {
         )}
 
       <AddMemberModal isOpen={isAddMemberOpen} onClose={() => setIsAddMemberOpen(false)} />
-   <ManageGroupModal isOpen={isManageOpen} onClose={()=>setIsManageOpen(false)}/>
+      <ManageGroupModal isOpen={isManageOpen} onClose={() => setIsManageOpen(false)} />
     </div>
   );
 };

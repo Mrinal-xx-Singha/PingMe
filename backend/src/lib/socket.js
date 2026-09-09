@@ -43,6 +43,22 @@ io.on("connection", async (socket) => {
   //   io.emit is used to send an event to all connected clients
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
+  socket.on("startWatchParty", ({ groupId, videoUrl }) => {
+    // Broadcast the video URL to everyone else in the group
+    socket.to(groupId).emit("watchPartyStarted", { videoUrl })
+  })
+
+  // Someone hits the play,pause, or scrubs to a new time 
+  socket.on("syncVideo", ({ groupId, action, time }) => {
+    // action will be "play","pause","seek"
+    socket.to(groupId).emit("videoSynced", { action, time })
+  })
+
+  // Some one ends the watch party
+  socket.on("endWatchParty", ({ groupId }) => {
+    socket.to(groupId).emit("watchPartyEnded")
+  })
+
   // Listen for 'typing ' event from the client
   socket.on('typing', ({ senderId, receiverId }) => {
     const receiverSocketId = getReceiverSocketId(receiverId)

@@ -5,6 +5,7 @@ import MessageInput from "./MessageInput";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
 import { useAuthStore } from "../store/useAuthStore";
 import { formatMessageTime } from "../lib/utils";
+import WatchParty from "./WatchParty";
 
 const ChatContainer = () => {
   const {
@@ -19,6 +20,8 @@ const ChatContainer = () => {
     subscribeToTyping,
     unsubscribeFromTyping,
     unsubscribeFromMessages,
+    subscribeToWatchParty,
+    unsubscribeFromWatchParty
   } = useChatStore();
 
   const { authUser } = useAuthStore();
@@ -38,11 +41,13 @@ const ChatContainer = () => {
     getMessages(selectedUser._id);
     subscribeToTyping()
     subscribeToMessages();
+    subscribeToWatchParty()
     return () => {
       unsubscribeFromMessages();
       unsubscribeFromTyping()
+      unsubscribeFromWatchParty()
     }
-  }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages, subscribeToTyping, unsubscribeFromTyping]);
+  }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages, subscribeToTyping, unsubscribeFromTyping,subscribeToWatchParty,unsubscribeFromWatchParty]);
 
   // Scroll to bottom on initial load OR when a new real-time message arrives
   useEffect(() => {
@@ -103,6 +108,8 @@ const ChatContainer = () => {
   return (
     <div className="flex-1 flex flex-col overflow-auto">
       <ChatHeader />
+
+      <WatchParty />
 
       {/* Scrollable message list */}
       <div

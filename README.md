@@ -8,6 +8,7 @@ PingMe is a robust, full-stack real-time chat application built with the **MERN*
 
 ## ✨ Key Features
 
+- **Synchronized Watch Parties 🍿**: Paste a YouTube URL in any group chat to launch a real-time synchronized video player. When anyone hits play, pause, or skips ahead, it instantly syncs across all connected clients via WebSockets!
 - **Real-Time Communication**: Instant messaging powered by WebSockets (Socket.io) with zero-polling architecture.
 - **Group Chats & Admin Controls**: Users can create groups, add/remove members, and manage permissions. Normal users can gracefully leave groups.
 - **Live Typing Indicators**: Real-time "User is typing..." feedback synced across connected clients.

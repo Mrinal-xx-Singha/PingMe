@@ -45,7 +45,7 @@ io.on("connection", async (socket) => {
 
   socket.on("startWatchParty", ({ groupId, videoUrl }) => {
     // Broadcast the video URL to everyone else in the group
-    socket.to(groupId).emit("watchPartyStarted", { videoUrl })
+    socket.to(groupId).emit("watchPartyStarted", { videoUrl, groupId })
   })
 
   // Someone hits the play,pause, or scrubs to a new time 

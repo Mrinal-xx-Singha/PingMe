@@ -4,12 +4,14 @@ import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import AddMemberModal from "./AddMemberModal";
 import ManageGroupModal from "./ManageGroupModal";
+import StartWatchPartyModal from "./StartWatchPartyModal";
 
 const ChatHeader = () => {
   const { selectedUser, setSelected, typingUsers } = useChatStore();
   const { onlineUsers, authUser } = useAuthStore();
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false)
   const [isManageOpen, setIsManageOpen] = useState(false)
+  const [isWatchPartyOpen,setIsWatchPartyOpen] =useState(false)
 
 
   const isTyping = typingUsers.includes(selectedUser._id)
@@ -67,10 +69,7 @@ const ChatHeader = () => {
           )}
           {selectedUser.isGroup && (
             <button
-              onClick={() => {
-                const url = window.prompt("Enter a Youtube URL to start a watch prty:")
-                if (url) useChatStore.getState().startWatchParty(selectedUser._id, url)
-              }}
+              onClick={() => setIsWatchPartyOpen(true)}
               className="btn btn-xs btn-accent mr-2"
               title="Start Watch Party"
             >🍿 Watch</button>
@@ -92,6 +91,7 @@ const ChatHeader = () => {
 
       <AddMemberModal isOpen={isAddMemberOpen} onClose={() => setIsAddMemberOpen(false)} />
       <ManageGroupModal isOpen={isManageOpen} onClose={() => setIsManageOpen(false)} />
+        <StartWatchPartyModal isOpen={isWatchPartyOpen} onClose={()=>setIsWatchPartyOpen(false)}/>
     </div>
   );
 };

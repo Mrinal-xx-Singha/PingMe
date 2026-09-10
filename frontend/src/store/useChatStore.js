@@ -19,6 +19,7 @@ export const useChatStore = create((set, get) => ({
 
   // -- Watch party states ---
   activeVideoUrl: null,
+  watchPartyGroupId: null,
   videoAction: null,
   videoTime: 0,
 
@@ -50,8 +51,8 @@ export const useChatStore = create((set, get) => ({
     const socket = useAuthStore.getState().socket
     if (!socket) return
 
-    socket.on("watchPartyStarted", ({ videoUrl }) => {
-      set({ activeVideoUrl: videoUrl, videoAction: 'play', videoTime: 0 })
+    socket.on("watchPartyStarted", ({ videoUrl, groupId }) => {
+      set({ activeVideoUrl: videoUrl, watchPartyId: groupId, videoAction: 'play', videoTime: 0 })
       toast.success("A Watch Party has started 🍿")
     })
 
@@ -60,7 +61,7 @@ export const useChatStore = create((set, get) => ({
     })
 
     socket.on("watchPartyEnded", () => {
-      set({ activeVideoUrl: null })
+      set({ activeVideoUrl: null, watchPartyGroupId: null })
       toast.error("Watch Party ended.")
     })
   },
@@ -75,7 +76,7 @@ export const useChatStore = create((set, get) => ({
   // Call these when the CURRENT user clicks a button
   startWatchParty: (groupId, videoUrl) => {
     const socket = useAuthStore.getState().socket
-    set({ activeVideoUrl: videoUrl, videoAction: "play", videoTime: 0 })
+    set({ activeVideoUrl: videoUrl, watchPartyGroupId: groupId, videoAction: "play", videoTime: 0 })
     socket.emit("startWatchParty", { groupId, videoUrl })
 
   },
@@ -86,7 +87,7 @@ export const useChatStore = create((set, get) => ({
   },
   endWatchParty: (groupId) => {
     const socket = useAuthStore.getState().socket
-    set({ activeVideoUrl: null })
+    set({ activeVideoUrl: null, watchPartyGroupId: null })
     socket.emit("endWatchParty", { groupId })
   },
 

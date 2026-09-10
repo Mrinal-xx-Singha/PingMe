@@ -4,7 +4,7 @@ import { X } from "lucide-react";
 import ReactPlayer from "react-player";
 
 const WatchParty = () => {
-    const { selectedUser, activeVideoUrl, videoAction, videoTime, syncVideo, endWatchParty } = useChatStore();
+    const { selectedUser, activeVideoUrl, videoAction, videoTime, syncVideo, endWatchParty, watchPartyGroupId } = useChatStore();
     const playerRef = useRef(null);
     const [playing, setPlaying] = useState(true);
 
@@ -21,6 +21,8 @@ const WatchParty = () => {
     }, [videoAction, videoTime]);
 
     if (!activeVideoUrl || !selectedUser) return null;
+    // If the chat we are looking at is not the group where the party started, hide the video!
+    if (selectedUser._id !== watchPartyGroupId) return null
 
     return (
         <div className='w-full bg-base-300 p-3 flex flex-col gap-2 shadow-xl z-20 border-b border-base-100'>

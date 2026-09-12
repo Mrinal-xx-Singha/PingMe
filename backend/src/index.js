@@ -2,7 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
-import groupRoutes from "./routes/group.route.js"
+import groupRoutes from "./routes/group.route.js";
+import newsRoutes from "./routes/news.route.js";
 import { connectDB } from "./lib/db.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -30,7 +31,8 @@ app.use("/api/auth", authRoutes);
 // api route for messages
 
 app.use("/api/message", messageRoutes);
-app.use('/api/groups', groupRoutes)
+app.use("/api/groups", groupRoutes);
+app.use("/api/news", newsRoutes);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));

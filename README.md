@@ -8,6 +8,8 @@ PingMe is a robust, full-stack real-time chat application built with the **MERN*
 
 ## ✨ Key Features
 
+- **3-Column Dashboard Layout**: A highly responsive layout featuring a collapsible left sidebar for contacts and a dedicated right sidebar for live tech news, ensuring maximum space for the main chat interface.
+- **Live Tech News Feed 📰**: Integrated with the Dev.to public API via a custom Node.js backend proxy. Displays the top 10 trending software engineering articles in real-time without exposing API keys or triggering CORS blocks.
 - **Synchronized Watch Parties 🍿**: Paste a YouTube URL in any group chat to launch a real-time synchronized video player. When anyone hits play, pause, or skips ahead, it instantly syncs across all connected clients via WebSockets!
 - **Real-Time Communication**: Instant messaging powered by WebSockets (Socket.io) with zero-polling architecture.
 - **Group Chats & Admin Controls**: Users can create groups, add/remove members, and manage permissions. Normal users can gracefully leave groups.

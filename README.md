@@ -38,11 +38,11 @@ PingMe is a robust, full-stack real-time chat application built with the **MERN*
 
 ## 📸 Screenshots
 
-*(Add screenshots of your application here to impress recruiters!)*
+*(Added Screenshots!)*
 
 | Login Page | Chat Dashboard | Group Management |
 | :---: | :---: | :---: |
-| <img src="https://via.placeholder.com/400x250?text=Login+Page" width="400"/> | <img src="https://via.placeholder.com/400x250?text=Chat+Interface" width="400"/> | <img src="https://via.placeholder.com/400x250?text=Group+Modal" width="400"/> |
+| <img width="1860" height="890" alt="Screenshot (54)" src="https://github.com/user-attachments/assets/9472fb50-dc24-4d21-aa1a-df275bd575ce" /> | <img width="1867" height="892" alt="Screenshot (55)" src="https://github.com/user-attachments/assets/7a5ecbf5-4a53-49b3-a459-337abaa5c164" /> | <img width="1861" height="899" alt="Screenshot (56)" src="https://github.com/user-attachments/assets/e7c92c41-4c93-465e-b7bd-7efafa787b70" /> |
 
 ## 🚀 Getting Started
 

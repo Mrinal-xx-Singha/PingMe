@@ -3,6 +3,7 @@ import { getReceiverSocketId, io } from "../lib/socket.js";
 import Message from "../models/message.model.js";
 import User from "../models/user.model.js";
 import Group from "../models/group.model.js";
+import { extractUrl, fetchLinkPreview } from "../lib/linkPreview.js";
 
 export const getUsersForSidebar = async (req, res) => {
   try {
@@ -111,6 +112,36 @@ export const sendMessage = async (req, res) => {
 
     await newMessage.save();
 
+    if (text) {
+      const url = extractUrl(text)
+      if (url) {
+        fetchLinkPreview(url).then(async (preview) => {
+          if (preview) {
+            newMessage.linkPreview = preview
+            await newMessage.save()
+
+            // Notify the frontend to update the message with the preview
+            // For DMs:
+            const receiverSocketId = getReceiverSocketId(receiverId)
+            if (receiverSocketId) {
+              io.to(receiverSocketId).emit("linkPreviewReady", {
+                messageId: newMessage._id, linkPreview: preview
+              })
+            }
+            // Also notify the sender
+            const senderSocketId = getReceiverSocketId(senderId)
+            if (senderSocketId) {
+              io.to(senderSocketId).emit("linkPreviewReady", {
+                messageId: newMessage._id, linkPreview: preview
+              })
+            }
+
+
+          }
+        })
+      }
+    }
+
     // Placeholder for real-time functionality
     // socket.emit("newMessage", newMessage);
 
@@ -187,6 +218,22 @@ export const sendGroupMessage = async (req, res) => {
     // Emit to the group's socket room (instead of an individual user)
 
     io.to(groupId).emit("newMessage", newMessage)
+
+
+    if (text) {
+      const url = extractUrl(text)
+      if (url) {
+        fetchLinkPreview(url).then(async (preview) => {
+          if (preview) {
+            newMessage.linkPreview = preview
+            await newMessage.save()
+            io.to(groupId).emit("linkPreviewReady", {
+              messageId: newMessage._id, linkPreview: preview
+            })
+          }
+        })
+      }
+    }
 
     res.status(201).json(newMessage)
   } catch (error) {

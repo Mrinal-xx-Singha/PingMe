@@ -21,6 +21,13 @@ const messageSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+    linkPreview: {
+      url: String,
+      title: String,
+      description: String,
+      image: String
+
+    }
   },
   { timestamps: true }
 );

@@ -215,11 +215,19 @@ export const useChatStore = create((set, get) => ({
       }
       set({ messages: [...get().messages, newMsg] });
     });
+
+    socket.on("linkPreviewReady", ({ messageId, linkPreview }) => {
+      set((state) => ({
+        messages: state.messages.map((msg) => msg._id === messageId ? { ...msg, linkPreview } : msg)
+      }))
+
+    })
   },
 
   unsubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
     socket.off("newMessage");
+    socket.off("linkPreviewReady")
   },
 
   setSelected: (selectedUser) => set({ selectedUser }),

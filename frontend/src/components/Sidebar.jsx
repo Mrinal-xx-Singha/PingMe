@@ -39,7 +39,7 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
   if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
-    <aside className={`h-full boder border-r border-base-300 flex flex-col bg-base-200 transition-all duration-300 ease-in-out ${isCollapsed ? "w-20" : "w-20 lg:w-72"}`}>
+    <aside className={`h-full border-r border-base-300 flex flex-col bg-base-200 transition-all duration-300 ease-in-out overflow-x-hidden ${isCollapsed ? "w-20" : "w-20 lg:w-72"}`}>
       <div className="border-b border-base-300 p-5 space-y-4">
         {/* Header with Hamburger Menu */}
         <div className="flex items-center justify-between">
@@ -106,11 +106,12 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
             key={item._id}
             onClick={() => setSelected(item)}
             className={`
-              w-full px-5 py-3 flex items-center gap-4 
+              w-full py-3 flex items-center gap-4 
               hover:bg-base-300 transition-colors group
               ${selectedUser?._id === item._id
                 ? "bg-base-300 ring-1 ring-base-300"
                 : "hover:bg-base-300/50"}
+              ${isCollapsed ? "justify-center px-0 mx-auto" : "px-5"}
             `}
           >
 

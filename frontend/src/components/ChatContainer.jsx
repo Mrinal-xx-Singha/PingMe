@@ -6,6 +6,7 @@ import MessageSkeleton from "./skeletons/MessageSkeleton";
 import { useAuthStore } from "../store/useAuthStore";
 import { formatMessageTime } from "../lib/utils";
 import WatchParty from "./WatchParty";
+import LinkPreviewCard from "./LinkPreviewCard";
 
 const ChatContainer = () => {
   const {
@@ -178,6 +179,11 @@ const ChatContainer = () => {
                     )}
                     {message.text && (
                       <p className="text-sm leading-relaxed">{message.text}</p>
+                    )}
+                    {message.linkPreview && (
+                      <LinkPreviewCard 
+                      preview={message.linkPreview}
+                      />
                     )}
                     
                   </div>

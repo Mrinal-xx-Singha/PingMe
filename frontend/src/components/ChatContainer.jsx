@@ -21,8 +21,6 @@ const ChatContainer = () => {
     subscribeToTyping,
     unsubscribeFromTyping,
     unsubscribeFromMessages,
-    subscribeToWatchParty,
-    unsubscribeFromWatchParty
   } = useChatStore();
 
   const { authUser } = useAuthStore();
@@ -42,13 +40,12 @@ const ChatContainer = () => {
     getMessages(selectedUser._id);
     subscribeToTyping()
     subscribeToMessages();
-    subscribeToWatchParty()
+   
     return () => {
       unsubscribeFromMessages();
       unsubscribeFromTyping()
-      unsubscribeFromWatchParty()
     }
-  }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages, subscribeToTyping, unsubscribeFromTyping,subscribeToWatchParty,unsubscribeFromWatchParty]);
+  }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages, subscribeToTyping, unsubscribeFromTyping]);
 
   // Scroll to bottom on initial load OR when a new real-time message arrives
   useEffect(() => {

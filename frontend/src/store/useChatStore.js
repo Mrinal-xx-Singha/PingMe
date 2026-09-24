@@ -52,7 +52,7 @@ export const useChatStore = create((set, get) => ({
     if (!socket) return
 
     socket.on("watchPartyStarted", ({ videoUrl, groupId }) => {
-      set({ activeVideoUrl: videoUrl, watchPartyId: groupId, videoAction: 'play', videoTime: 0 })
+      set({ activeVideoUrl: videoUrl, watchPartyGroupId: groupId, videoAction: 'play', videoTime: 0 })
       toast.success("A Watch Party has started 🍿")
     })
 

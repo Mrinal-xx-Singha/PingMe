@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import Sidebar from "../components/Sidebar";
 import NoChatSelected from "../components/NoChatSelected";
@@ -6,9 +6,14 @@ import ChatContainer from "../components/ChatContainer";
 import NewsSidebar from "../components/NewsSidebar";
 
 const HomePage = () => {
-  const { selectedUser } = useChatStore();
+  const { selectedUser,subscribeToWatchParty,unsubscribeFromWatchParty  } = useChatStore();
 
   const [isSidebarCollapsed,setIsSidebarCollapsed] =useState(false)
+
+  useEffect(()=>{
+    subscribeToWatchParty()
+    return()=>unsubscribeFromWatchParty()
+  },[subscribeToWatchParty,unsubscribeFromWatchParty ])
 
   return (
     <div className="min-h-screen bg-base-200 py-20">

@@ -21,6 +21,10 @@ const ChatContainer = () => {
     subscribeToTyping,
     unsubscribeFromTyping,
     unsubscribeFromMessages,
+        subscribeToPresence,
+    unsubscribeFromPresence,
+    emitViewingChat,
+    emitLeftChat,
   } = useChatStore();
 
   const { authUser } = useAuthStore();
@@ -40,10 +44,14 @@ const ChatContainer = () => {
     getMessages(selectedUser._id);
     subscribeToTyping()
     subscribeToMessages();
+    subscribeToPresence();
+    emitViewingChat(selectedUser._id,selectedUser.isGroup)
    
     return () => {
       unsubscribeFromMessages();
       unsubscribeFromTyping()
+      unsubscribeFromPresence()
+      emitLeftChat(selectedUser._id,selectedUser.isGroup)
     }
   }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages, subscribeToTyping, unsubscribeFromTyping]);
 

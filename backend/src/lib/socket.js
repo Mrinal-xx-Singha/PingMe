@@ -75,6 +75,33 @@ io.on("connection", async (socket) => {
       io.to(receiverSocketId).emit('userStoppedTyping', { senderId })
     }
   })
+  // Listening for "ViewingChat" -= user opened someone's chat
+  socket.on("viewingChat", ({ viewerId, chatId, isGroup }) => {
+    if (isGroup) {
+      // Tell everyone in the group that this user is viweing 
+      socket.to(chatId).emit('userViewingChat', { viewerId })
+    } else {
+      // Tell the specific dm partner
+      const receiverSocketId = getReceiverSocketId(chatId)
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("userViewingChat", { viewerId })
+      }
+    }
+  })
+
+  // Listen for "leftCHat" - user closed or switched away
+  socket.on("leftChat", ({ viewerId, chatId, isGroup }) => {
+    if (isGroup) {
+      socket.to(chatId).emit("userLeftChat", { viewerId })
+    } else {
+      const receiverSocketId = getReceiverSocketId(chatId)
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("userLeftChat", { viewerId })
+      }
+    }
+
+  })
+
 
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.id);

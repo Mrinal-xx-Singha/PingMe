@@ -22,6 +22,8 @@ export const useChatStore = create((set, get) => ({
   watchPartyGroupId: null,
   videoAction: null,
   videoTime: 0,
+  viewingUsers: [], // array of userIds who are currently viewing this chat
+
 
 
   subscribeToTyping: () => {
@@ -47,6 +49,41 @@ export const useChatStore = create((set, get) => ({
     socket.off("userTyping")
     socket.off("userStoppedTyping")
   },
+  subscribeToPresence: () => {
+    const socket = useAuthStore.getState().socket
+    if (!socket) return
+
+    socket.on('userViewingChat', ({ viewerId }) => {
+      set((state) => ({
+        viewingUsers: [...new Set([...state.viewingUsers, viewerId])]
+      }))
+    })
+
+    socket.on("userLeftChat", ({ viewerId }) => {
+      set((state) => ({
+        viewingUsers: state.viewingUsers.filter((id) => id !== viewerId)
+      }))
+    })
+  },
+  unsubscribeFromPresence: () => {
+    const socket = useAuthStore.getState().socket
+    if (!socket) return
+    socket.off("userViewingChat")
+    socket.off("userLeftChat")
+  },
+  // Emit when you open a chat
+  emitViewingChat: (chatId, isGroup) => {
+    const socket = useAuthStore.getState().socket
+    const viewerId = useAuthStore.getState().authUser._id
+    socket.emit("viewingChat", { viewerId, chatId, isGroup: !!isGroup })
+  },
+  // Emit when you leave a chat
+  emitLeftChat: (chatId, isGroup) => {
+    const socket = useAuthStore.getState().socket
+    const viewerId = useAuthStore.getState().authUser._id
+    socket.emit("leftChat", { viewerId, chatId, isGroup: !!isGroup })
+  },
+
   subscribeToWatchParty: () => {
     const socket = useAuthStore.getState().socket
     if (!socket) return

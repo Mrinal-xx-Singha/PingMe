@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X } from "lucide-react";
+import { Users, X } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import AddMemberModal from "./AddMemberModal";
@@ -7,7 +7,7 @@ import ManageGroupModal from "./ManageGroupModal";
 import StartWatchPartyModal from "./StartWatchPartyModal";
 
 const ChatHeader = () => {
-  const { selectedUser, setSelected, typingUsers } = useChatStore();
+  const { selectedUser, setSelected, typingUsers,viewingUsers,users } = useChatStore();
   const { onlineUsers, authUser } = useAuthStore();
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false)
   const [isManageOpen, setIsManageOpen] = useState(false)
@@ -86,6 +86,15 @@ const ChatHeader = () => {
         isTyping && !selectedUser.isGroup && (
           <span className="text-sm text-green-500 italic">
             Typing...
+          </span>
+        )}
+        {/* Presence Indicator */}
+        {viewingUsers.length >0 && (
+          <span className="text-xs text-blue-400 flex items-center gap-1 mt-0.5">
+            👀 {viewingUsers.map(id =>{
+              const user = users.find(u=>u._id === id)
+              return user?.fullName?.split(' ')[0] || "Someone"
+            }).join(", ")} {viewingUsers.length === 1 ? "is" : "are"} viewing this chat
           </span>
         )}
 

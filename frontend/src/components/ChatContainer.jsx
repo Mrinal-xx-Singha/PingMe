@@ -103,7 +103,7 @@ const ChatContainer = () => {
 
   if (isMessagesLoading) {
     return (
-      <div className="flex-1 flex flex-col overflow-auto">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <ChatHeader />
         <MessageSkeleton />
         <MessageInput />
@@ -112,18 +112,27 @@ const ChatContainer = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-auto">
+    <div className="flex-1 flex flex-col overflow-hidden">
       <ChatHeader />
 
       <WatchParty />
-
       {/* Scrollable message list */}
       <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto px-4 py-6 space-y-6"
+        className="flex-1 overflow-y-auto px-4 py-6"
       >
+        {/* This inner div pushes messages to the bottom */}
+        <div className="flex flex-col justify-end min-h-full space-y-6">
+
         {/* Top sentinel — observed to trigger loading older messages */}
         <div ref={topSentinelRef} />
+        {messages.length===0 && (
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-base-content/40 text-sm">
+            No messages yet. Say hi! 🖐🏼</p>
+
+          </div>
+        )}
 
         {/* Spinner shown while loading older messages */}
         {isLoadingMoreMessages && (
@@ -209,6 +218,7 @@ const ChatContainer = () => {
 
         {/* Bottom anchor — scrolled into view on new messages */}
         <div ref={messageEndRef} />
+        </div>
       </div>
 
       <MessageInput />

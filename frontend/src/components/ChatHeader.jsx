@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Users, X } from "lucide-react";
+import { Users, X,ArrowLeft } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import AddMemberModal from "./AddMemberModal";
@@ -19,8 +19,16 @@ const ChatHeader = () => {
     <div className="p-2.5 border-b border-base-300">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
+            <button
+            onClick={()=>setSelected(null)}
+            className="btn btn-ghost btn-sm btn-circle lg:hidden"
+            >
+              <ArrowLeft size={20}/>
+            </button>
+          </div>
           {/* Avatar */}
-          <div className="avatr">
+          <div className="avatar">
             <div className="size-10 rounded-full relative">
               <img
                 src={selectedUser.profilePic || (selectedUser.isGroup ? "/group-image.jpeg" : "/avatar.png")}
@@ -31,16 +39,17 @@ const ChatHeader = () => {
           </div>
           {/* User Info */}
           <div>
-            <h3 className="font-medium">{selectedUser.fullName}</h3>
+            <h3 className="font-medium text-sm lg:text-md">{selectedUser.fullName}</h3>
             <p className="text-sm text-base-content/70">
               {selectedUser.isGroup ? `${selectedUser.members?.length || 0} members` : (onlineUsers.includes(selectedUser._id) ? "Online" : "Offline")}
             </p>
           </div>
         </div>
         {/* Close btn */}
-        <div className="flex items-center gap-2 ">
+        <div className="flex items-center gap-1 lg:gap-2 shrink-0">
+          {/* Admin buttons -hidden on mobile, show on desktop */}
           {selectedUser.isGroup && selectedUser.adminId === authUser._id && (
-            <div className="flex gap-2 mr-2">
+            <div className="hidden sm:flex gap-2 mr-2">
 
               <button
                 onClick={() => setIsAddMemberOpen(true)}
@@ -62,7 +71,7 @@ const ChatHeader = () => {
                   setSelected(null)
                 }
               }}
-              className="btn btm-xs btn-error btn-outline mr-2"
+              className="btn btn-xs btn-error btn-outline mr-2"
             >
               Leave
             </button>
@@ -72,7 +81,7 @@ const ChatHeader = () => {
               onClick={() => setIsWatchPartyOpen(true)}
               className="btn btn-xs btn-accent mr-2"
               title="Start Watch Party"
-            >🍿 Watch</button>
+            >🍿 <span className="hidden sm:inline">Watch</span></button>
           )}
           {/* Close Chat Button */}
           <button onClick={() => setSelected(null)}
@@ -94,7 +103,7 @@ const ChatHeader = () => {
             👀 {viewingUsers.map(id =>{
               const user = users.find(u=>u._id === id)
               return user?.fullName?.split(' ')[0] || "Someone"
-            }).join(", ")} {viewingUsers.length === 1 ? "is" : "are"} viewing this chat
+            }).join(", ")} {viewingUsers.length === 1  ? "is" : "are"} viewing this chat
           </span>
         )}
 

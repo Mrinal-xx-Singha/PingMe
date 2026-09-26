@@ -39,7 +39,7 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
   if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
-    <aside className={`h-full border-r border-base-300 flex flex-col bg-base-200 transition-all duration-300 ease-in-out overflow-x-hidden ${isCollapsed ? "w-20" : "w-20 lg:w-72"}`}>
+        <aside className={`h-full border-r border-base-300 flex flex-col bg-base-200 transition-all duration-300 ease-in-out overflow-x-hidden ${isCollapsed ? "w-full lg:w-20" : "w-full lg:w-72"}`}>
       <div className="border-b border-base-300 p-5 space-y-4">
         {/* Header with Hamburger Menu */}
         <div className="flex items-center justify-between">
@@ -66,7 +66,7 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
 
         {/* Search Input (Hidden when collapsed) */}
         {!isCollapsed &&(
-        <div className="relative hidden lg:block animate-fade-in">
+        <div className="relative block animate-fade-in">
           <input
             type="text"
             placeholder="Search contacts..."
@@ -134,7 +134,7 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
 
             {/* User info - only visible on larger screens */}
             {!isCollapsed && (
-            <div className="hidden lg:block text-left min-w-0 flex-1 animate-fade-in">
+            <div className="block text-left min-w-0 flex-1 animate-fade-in">
               <div className="font-medium truncate text-base-content">
                 {item.fullName}
               </div>

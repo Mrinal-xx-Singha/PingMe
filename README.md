@@ -1,4 +1,4 @@
-# 💬 PingMe - Real-Time Chat Application
+# 💬 PingMe - Real-Time Chat Application with Real-Time Youtube Watch Party feature .
 
 ![MERN Stack](https://img.shields.io/badge/MERN-Stack-blue?style=for-the-badge&logo=react)
 ![Socket.io](https://img.shields.io/badge/Socket.io-Real--Time-black?style=for-the-badge&logo=socket.io)

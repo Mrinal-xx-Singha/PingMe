@@ -7,6 +7,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { formatMessageTime } from "../lib/utils";
 import WatchParty from "./WatchParty";
 import LinkPreviewCard from "./LinkPreviewCard";
+import { Check, CheckCheck } from "lucide-react"
 
 const ChatContainer = () => {
   const {
@@ -21,13 +22,13 @@ const ChatContainer = () => {
     subscribeToTyping,
     unsubscribeFromTyping,
     unsubscribeFromMessages,
-        subscribeToPresence,
+    subscribeToPresence,
     unsubscribeFromPresence,
     emitViewingChat,
     emitLeftChat,
   } = useChatStore();
 
-  const { authUser } = useAuthStore();
+  const { authUser, onlineUsers } = useAuthStore();
 
   // Ref to scroll to on initial load / new real-time message
   const messageEndRef = useRef(null);
@@ -45,13 +46,13 @@ const ChatContainer = () => {
     subscribeToTyping()
     subscribeToMessages();
     subscribeToPresence();
-    emitViewingChat(selectedUser._id,selectedUser.isGroup)
-   
+    emitViewingChat(selectedUser._id, selectedUser.isGroup)
+
     return () => {
       unsubscribeFromMessages();
       unsubscribeFromTyping()
       unsubscribeFromPresence()
-      emitLeftChat(selectedUser._id,selectedUser.isGroup)
+      emitLeftChat(selectedUser._id, selectedUser.isGroup)
     }
   }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages, subscribeToTyping, unsubscribeFromTyping]);
 
@@ -124,100 +125,116 @@ const ChatContainer = () => {
         {/* This inner div pushes messages to the bottom */}
         <div className="flex flex-col justify-end min-h-full space-y-6">
 
-        {/* Top sentinel — observed to trigger loading older messages */}
-        <div ref={topSentinelRef} />
-        {messages.length===0 && (
-          <div className="flex-1 flex items-center justify-center">
-            <p className="text-base-content/40 text-sm">
-            No messages yet. Say hi! 🖐🏼</p>
+          {/* Top sentinel — observed to trigger loading older messages */}
+          <div ref={topSentinelRef} />
+          {messages.length === 0 && (
+            <div className="flex-1 flex items-center justify-center">
+              <p className="text-base-content/40 text-sm">
+                No messages yet. Say hi! 🖐🏼</p>
 
-          </div>
-        )}
+            </div>
+          )}
 
-        {/* Spinner shown while loading older messages */}
-        {isLoadingMoreMessages && (
-          <div className="flex justify-center py-2">
-            <span className="loading loading-spinner loading-sm text-primary" />
-            <span className="text-xs text-base-content/50 ml-2">Loading older messages…</span>
-          </div>
-        )}
+          {/* Spinner shown while loading older messages */}
+          {isLoadingMoreMessages && (
+            <div className="flex justify-center py-2">
+              <span className="loading loading-spinner loading-sm text-primary" />
+              <span className="text-xs text-base-content/50 ml-2">Loading older messages…</span>
+            </div>
+          )}
 
-        {/* "You've reached the beginning" label when no more messages remain */}
-        {!hasMoreMessages && messages.length > 0 && (
-          <p className="text-center text-xs text-base-content/40 py-2">
-            ✓ Beginning of conversation
-          </p>
-        )}
+          {/* "You've reached the beginning" label when no more messages remain */}
+          {!hasMoreMessages && messages.length > 0 && (
+            <p className="text-center text-xs text-base-content/40 py-2">
+              ✓ Beginning of conversation
+            </p>
+          )}
 
-        {messages.map((message) => {
-          const isCurrentUser = message.senderId === authUser._id;
-          
-          
-          let profilePic = "/avatar.png"
+          {messages.map((message) => {
+            const isCurrentUser = message.senderId === authUser._id;
 
-          if(isCurrentUser){
-            profilePic = authUser.profilePic || "/avatar.png"
-          }else if(selectedUser.isGroup){
-            const sendUser = useChatStore.getState().users.find(u=>u._id === message.senderId)
-            profilePic = sendUser?.profilePic || "/avatar.png"
-          }else{
-            profilePic = selectedUser.profilePic || "/avatar.png"
-          }
 
-          
-          return (
-            <div
-              key={message._id}
-              className={`flex ${isCurrentUser ? "justify-end" : "justify-start"}`}
-            >
-              <div className="flex items-start gap-3 max-w-[80%]">
-                {!isCurrentUser && (
-                  <div className="size-10 rounded-full overflow-hidden shrink-0">
-                    <img src={profilePic} alt="profile-pic" className="size-full object-cover" />
-                  </div>
-                )}
+            let profilePic = "/avatar.png"
 
-                <div className="flex flex-col items-end">
-                  <div
-                    className={`rounded-2xl px-4 py-2.5 shadow-sm ${isCurrentUser
+            if (isCurrentUser) {
+              profilePic = authUser.profilePic || "/avatar.png"
+            } else if (selectedUser.isGroup) {
+              const sendUser = useChatStore.getState().users.find(u => u._id === message.senderId)
+              profilePic = sendUser?.profilePic || "/avatar.png"
+            } else {
+              profilePic = selectedUser.profilePic || "/avatar.png"
+            }
+
+
+            return (
+              <div
+                key={message._id}
+                className={`flex ${isCurrentUser ? "justify-end" : "justify-start"}`}
+              >
+                <div className="flex items-start gap-3 max-w-[80%]">
+                  {!isCurrentUser && (
+                    <div className="size-10 rounded-full overflow-hidden shrink-0">
+                      <img src={profilePic} alt="profile-pic" className="size-full object-cover" />
+                    </div>
+                  )}
+
+                  <div className="flex flex-col items-end">
+                    <div
+                      className={`rounded-2xl px-4 py-2.5 shadow-sm ${isCurrentUser
                         ? "bg-primary text-primary-content"
                         : "bg-base-200 text-base-content"
-                      }`}
-                  >
-                    {message.image && (
-                      <img
-                        src={message.image}
-                        alt="attachment"
-                        className="max-w-[200px] rounded-md mb-2"
-                      />
-                    )}
-                    {message.text && (
-                      <p className="text-sm leading-relaxed">{message.text}</p>
-                    )}
-                    {message.linkPreview && (
-                      <LinkPreviewCard 
-                      preview={message.linkPreview}
-                      />
-                    )}
-                    
+                        }`}
+                    >
+                      {message.image && (
+                        <img
+                          src={message.image}
+                          alt="attachment"
+                          className="max-w-[200px] rounded-md mb-2"
+                        />
+                      )}
+                      {message.text && (
+                        <p className="text-sm leading-relaxed">{message.text}</p>
+                      )}
+                      {message.linkPreview && (
+                        <LinkPreviewCard
+                          preview={message.linkPreview}
+                        />
+                      )}
+
+                    </div>
+                    <div className="flex items-center gap-1 mt-1">
+
+                      <time className="text-[10px] text-base-content/60">
+                        {formatMessageTime(message.createdAt)}
+                      </time>
+                      {/* Checkmarks only for messages sent by the logged-in user */}
+                      {isCurrentUser && (
+                        <span className="flex items-center">
+                          {/* If recipient or any group member is online, show double tick, else single tick */}
+                          {!selectedUser.isGroup && onlineUsers.includes(selectedUser._id) ? (
+                            <CheckCheck size={14} className="text-sky-400" />
+                          ) : selectedUser.isGroup ? (
+                            <CheckCheck size={14} className="text-sky-400" />
+                          ) : (
+                            <Check size={14} className="text-base-content/40" />
+                          )}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <time className="text-[10px] text-base-content/60 mt-1">
-                    {formatMessageTime(message.createdAt)}
-                  </time>
+
+                  {isCurrentUser && (
+                    <div className="size-10 rounded-full overflow-hidden shrink-0">
+                      <img src={profilePic} alt="profile-pic" className="size-full object-cover" />
+                    </div>
+                  )}
                 </div>
-
-                {isCurrentUser && (
-                  <div className="size-10 rounded-full overflow-hidden shrink-0">
-                    <img src={profilePic} alt="profile-pic" className="size-full object-cover" />
-                  </div>
-                )}
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
 
-        {/* Bottom anchor — scrolled into view on new messages */}
-        <div ref={messageEndRef} />
+          {/* Bottom anchor — scrolled into view on new messages */}
+          <div ref={messageEndRef} />
         </div>
       </div>
 

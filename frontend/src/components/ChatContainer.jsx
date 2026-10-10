@@ -4,7 +4,7 @@ import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
 import { useAuthStore } from "../store/useAuthStore";
-import { formatMessageTime } from "../lib/utils";
+import { formatMessageTime, formatDateSeparator } from "../lib/utils";
 import WatchParty from "./WatchParty";
 import LinkPreviewCard from "./LinkPreviewCard";
 import { Check, CheckCheck } from "lucide-react"
@@ -150,86 +150,106 @@ const ChatContainer = () => {
             </p>
           )}
 
-          {messages.map((message) => {
+          {messages.map((message, index) => {
             const isCurrentUser = message.senderId === authUser._id;
+
+            // Determine if we need to show a date separator
+            const currentMsgDate = formatDateSeparator(message.createdAt)
+            const prevMsgDate = index > 0 ? formatDateSeparator(messages[index - 1].createdAt) : null
+            const showDateSeparator = currentMsgDate !== prevMsgDate
 
 
             let profilePic = "/avatar.png"
-
             if (isCurrentUser) {
               profilePic = authUser.profilePic || "/avatar.png"
+
             } else if (selectedUser.isGroup) {
               const sendUser = useChatStore.getState().users.find(u => u._id === message.senderId)
               profilePic = sendUser?.profilePic || "/avatar.png"
-            } else {
+            }else{
               profilePic = selectedUser.profilePic || "/avatar.png"
             }
 
 
+
+
+
             return (
-              <div
-                key={message._id}
-                className={`flex ${isCurrentUser ? "justify-end" : "justify-start"}`}
-              >
-                <div className="flex items-start gap-3 max-w-[80%]">
-                  {!isCurrentUser && (
-                    <div className="size-10 rounded-full overflow-hidden shrink-0">
-                      <img src={profilePic} alt="profile-pic" className="size-full object-cover" />
-                    </div>
-                  )}
-
-                  <div className="flex flex-col items-end">
-                    <div
-                      className={`rounded-2xl px-4 py-2.5 shadow-sm ${isCurrentUser
-                        ? "bg-primary text-primary-content"
-                        : "bg-base-200 text-base-content"
-                        }`}
+              <React.Fragment key={message._id}>
+                {showDateSeparator && (
+                  <div className="flex justify-center my-4">
+                    <span
+                    className="text-[11px] font-medium bg-base-300 text-base-content/70 px-3 py-1 rounded-full shadow-sm select-none"
                     >
-                      {message.image && (
-                        <img
-                          src={message.image}
-                          alt="attachment"
-                          className="max-w-[200px] rounded-md mb-2"
-                        />
-                      )}
-                      {message.text && (
-                        <p className="text-sm leading-relaxed">{message.text}</p>
-                      )}
-                      {message.linkPreview && (
-                        <LinkPreviewCard
-                          preview={message.linkPreview}
-                        />
-                      )}
+                      {currentMsgDate}
+                    </span>
 
-                    </div>
-                    <div className="flex items-center gap-1 mt-1">
-
-                      <time className="text-[10px] text-base-content/60">
-                        {formatMessageTime(message.createdAt)}
-                      </time>
-                      {/* Checkmarks only for messages sent by the logged-in user */}
-                      {isCurrentUser && (
-                        <span className="flex items-center">
-                          {/* If recipient or any group member is online, show double tick, else single tick */}
-                          {!selectedUser.isGroup && onlineUsers.includes(selectedUser._id) ? (
-                            <CheckCheck size={14} className="text-sky-400" />
-                          ) : selectedUser.isGroup ? (
-                            <CheckCheck size={14} className="text-sky-400" />
-                          ) : (
-                            <Check size={14} className="text-base-content/40" />
-                          )}
-                        </span>
-                      )}
-                    </div>
                   </div>
+                )}
+                <div
+                  key={message._id}
+                  className={`flex ${isCurrentUser ? "justify-end" : "justify-start"}`}
+                >
+                  <div className="flex items-start gap-3 max-w-[80%]">
+                    {!isCurrentUser && (
+                      <div className="size-10 rounded-full overflow-hidden shrink-0">
+                        <img src={profilePic} alt="profile-pic" className="size-full object-cover" />
+                      </div>
+                    )}
 
-                  {isCurrentUser && (
-                    <div className="size-10 rounded-full overflow-hidden shrink-0">
-                      <img src={profilePic} alt="profile-pic" className="size-full object-cover" />
+                    <div className="flex flex-col items-end">
+                      <div
+                        className={`rounded-2xl px-4 py-2.5 shadow-sm ${isCurrentUser
+                          ? "bg-primary text-primary-content"
+                          : "bg-base-200 text-base-content"
+                          }`}
+                      >
+                        {message.image && (
+                          <img
+                            src={message.image}
+                            alt="attachment"
+                            className="max-w-[200px] rounded-md mb-2"
+                          />
+                        )}
+                        {message.text && (
+                          <p className="text-sm leading-relaxed">{message.text}</p>
+                        )}
+                        {message.linkPreview && (
+                          <LinkPreviewCard
+                            preview={message.linkPreview}
+                          />
+                        )}
+
+                      </div>
+                      <div className="flex items-center gap-1 mt-1">
+
+                        <time className="text-[10px] text-base-content/60">
+                          {formatMessageTime(message.createdAt)}
+                        </time>
+                        {/* Checkmarks only for messages sent by the logged-in user */}
+                        {isCurrentUser && (
+                          <span className="flex items-center">
+                            {/* If recipient or any group member is online, show double tick, else single tick */}
+                            {!selectedUser.isGroup && onlineUsers.includes(selectedUser._id) ? (
+                              <CheckCheck size={14} className="text-sky-400" />
+                            ) : selectedUser.isGroup ? (
+                              <CheckCheck size={14} className="text-sky-400" />
+                            ) : (
+                              <Check size={14} className="text-base-content/40" />
+                            )}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  )}
+
+                    {isCurrentUser && (
+                      <div className="size-10 rounded-full overflow-hidden shrink-0">
+                        <img src={profilePic} alt="profile-pic" className="size-full object-cover" />
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              </React.Fragment>
             );
           })}
 

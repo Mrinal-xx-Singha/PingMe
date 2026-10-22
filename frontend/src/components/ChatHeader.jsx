@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Users, X,ArrowLeft } from "lucide-react";
+import { Users, X, ArrowLeft, Volume2, VolumeX } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import AddMemberModal from "./AddMemberModal";
@@ -7,11 +7,11 @@ import ManageGroupModal from "./ManageGroupModal";
 import StartWatchPartyModal from "./StartWatchPartyModal";
 
 const ChatHeader = () => {
-  const { selectedUser, setSelected, typingUsers,viewingUsers,users } = useChatStore();
+  const { selectedUser, setSelected, typingUsers, viewingUsers, users, isSoundEnabled, toggleSound } = useChatStore();
   const { onlineUsers, authUser } = useAuthStore();
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false)
   const [isManageOpen, setIsManageOpen] = useState(false)
-  const [isWatchPartyOpen,setIsWatchPartyOpen] =useState(false)
+  const [isWatchPartyOpen, setIsWatchPartyOpen] = useState(false)
 
 
   const isTyping = typingUsers.includes(selectedUser._id)
@@ -21,10 +21,10 @@ const ChatHeader = () => {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-3">
             <button
-            onClick={()=>setSelected(null)}
-            className="btn btn-ghost btn-sm btn-circle lg:hidden"
+              onClick={() => setSelected(null)}
+              className="btn btn-ghost btn-sm btn-circle lg:hidden"
             >
-              <ArrowLeft size={20}/>
+              <ArrowLeft size={20} />
             </button>
           </div>
           {/* Avatar */}
@@ -83,6 +83,14 @@ const ChatHeader = () => {
               title="Start Watch Party"
             >🍿 <span className="hidden sm:inline">Watch</span></button>
           )}
+          {/* Sound Toggle Button */}
+          <button
+            onClick={toggleSound}
+            className="btn btn-ghost btn-sm btn-circle"
+            title={isSoundEnabled ? "Mute sounds" : "Unmute sounds"}
+          >
+            {isSoundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} className="text-base-content/40" />}
+          </button>
           {/* Close Chat Button */}
           <button onClick={() => setSelected(null)}
             className="btn btn-ghost btn-sm btn-circle"
@@ -97,19 +105,19 @@ const ChatHeader = () => {
             Typing...
           </span>
         )}
-        {/* Presence Indicator */}
-        {viewingUsers.length >0 && (
-          <span className="text-xs text-blue-400 flex items-center gap-1 mt-0.5">
-            👀 {viewingUsers.map(id =>{
-              const user = users.find(u=>u._id === id)
-              return user?.fullName?.split(' ')[0] || "Someone"
-            }).join(", ")} {viewingUsers.length === 1  ? "is" : "are"} viewing this chat
-          </span>
-        )}
+      {/* Presence Indicator */}
+      {viewingUsers.length > 0 && (
+        <span className="text-xs text-blue-400 flex items-center gap-1 mt-0.5">
+          👀 {viewingUsers.map(id => {
+            const user = users.find(u => u._id === id)
+            return user?.fullName?.split(' ')[0] || "Someone"
+          }).join(", ")} {viewingUsers.length === 1 ? "is" : "are"} viewing this chat
+        </span>
+      )}
 
       <AddMemberModal isOpen={isAddMemberOpen} onClose={() => setIsAddMemberOpen(false)} />
       <ManageGroupModal isOpen={isManageOpen} onClose={() => setIsManageOpen(false)} />
-        <StartWatchPartyModal isOpen={isWatchPartyOpen} onClose={()=>setIsWatchPartyOpen(false)}/>
+      <StartWatchPartyModal isOpen={isWatchPartyOpen} onClose={() => setIsWatchPartyOpen(false)} />
     </div>
   );
 };

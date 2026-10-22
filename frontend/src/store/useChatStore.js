@@ -2,6 +2,7 @@ import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios";
 import { useAuthStore } from "./useAuthStore";
+import { playSendSound, playReceiveSound } from "../lib/sounds";
 
 export const useChatStore = create((set, get) => ({
   messages: [],
@@ -23,6 +24,12 @@ export const useChatStore = create((set, get) => ({
   videoAction: null,
   videoTime: 0,
   viewingUsers: [], // array of userIds who are currently viewing this chat
+  isSoundEnabled: localStorage.getItem("pingme-sound") !== "false",
+  toggleSound: () => {
+    const nextState = !get().isSoundEnabled;
+    localStorage.setItem("pingme-sound", nextState)
+    set({ isSoundEnabled: nextState })
+  },
 
 
 
@@ -232,6 +239,9 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.post(endPoint, messageData);
 
       set({ messages: [...messages, res.data] });
+      if (get().isSoundEnabled) {
+        playSendSound()
+      }
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to send message");
     }
@@ -251,6 +261,9 @@ export const useChatStore = create((set, get) => ({
         if (newMsg.senderId !== selectedUser._id) return;
       }
       set({ messages: [...get().messages, newMsg] });
+      if (get().isSoundEnabled) {
+        playReceiveSound()
+      }
     });
 
     socket.on("linkPreviewReady", ({ messageId, linkPreview }) => {

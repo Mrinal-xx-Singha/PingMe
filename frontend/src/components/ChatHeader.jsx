@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Users, X, ArrowLeft, Volume2, VolumeX } from "lucide-react";
+import { Users, X, ArrowLeft, Volume2, VolumeX, Search } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import AddMemberModal from "./AddMemberModal";
@@ -7,11 +7,14 @@ import ManageGroupModal from "./ManageGroupModal";
 import StartWatchPartyModal from "./StartWatchPartyModal";
 
 const ChatHeader = () => {
-  const { selectedUser, setSelected, typingUsers, viewingUsers, users, isSoundEnabled, toggleSound } = useChatStore();
+  const { selectedUser, setSelected, typingUsers, viewingUsers, users, isSoundEnabled, toggleSound, searchQuery, setSearchQuery, messages } = useChatStore();
   const { onlineUsers, authUser } = useAuthStore();
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false)
   const [isManageOpen, setIsManageOpen] = useState(false)
   const [isWatchPartyOpen, setIsWatchPartyOpen] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+
+  const matchCount = searchQuery.trim() ? messages.filter((m) => m.text?.toLowerCase().includes(searchQuery.toLowerCase())).length : 0
 
 
   const isTyping = typingUsers.includes(selectedUser._id)
@@ -83,6 +86,14 @@ const ChatHeader = () => {
               title="Start Watch Party"
             >🍿 <span className="hidden sm:inline">Watch</span></button>
           )}
+          {/* Search Togle Button */}
+          <button
+            onClick={() => setIsSearchOpen(!isSearchOpen)}
+           className={`btn btn-ghost btn-sm btn-circle ${isSearchOpen ? "text-primary" : ""}`}
+            title="Search in conversation"
+          >
+            <Search size={18} />
+          </button>
           {/* Sound Toggle Button */}
           <button
             onClick={toggleSound}
@@ -99,6 +110,41 @@ const ChatHeader = () => {
           </button>
         </div>
       </div>
+      {isSearchOpen && (
+        <div
+          className="mt-2 pt-2 border-t border-base-300 flex items-center gap-2 animate-fade-in"
+        >
+          <div className="relative flex-1">
+            <Search size={14}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50"
+            />
+            <input
+              value={searchQuery}
+              type="text"
+              placeholder="search in conversation...."
+              autoFocus
+              className="input input-sm w-full pl-9 pr-8 bg-base-200 border-none rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-base-content/50 hover:text-base-content"
+                onClick={() => setSearchQuery("")}
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+          {searchQuery.trim() && (
+            <span
+              className="text-xs text-base-content/60 shrink-0"
+            >
+              {matchCount} {matchCount === 1 ? "match" : "matches"}
+            </span>
+          )}
+
+        </div>
+      )}
       {
         isTyping && !selectedUser.isGroup && (
           <span className="text-sm text-green-500 italic">

@@ -25,6 +25,8 @@ export const useChatStore = create((set, get) => ({
   videoTime: 0,
   viewingUsers: [], // array of userIds who are currently viewing this chat
   isSoundEnabled: localStorage.getItem("pingme-sound") !== "false",
+  searchQuery: "",
+  setSearchQuery: (query) => set({ searchQuery: query }),
   toggleSound: () => {
     const nextState = !get().isSoundEnabled;
     localStorage.setItem("pingme-sound", nextState)
@@ -280,5 +282,5 @@ export const useChatStore = create((set, get) => ({
     socket.off("linkPreviewReady")
   },
 
-  setSelected: (selectedUser) => set({ selectedUser }),
+  setSelected: (selectedUser) => set({ selectedUser, searchQuery: "" }),
 }));

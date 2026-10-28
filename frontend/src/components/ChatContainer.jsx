@@ -9,6 +9,22 @@ import WatchParty from "./WatchParty";
 import LinkPreviewCard from "./LinkPreviewCard";
 import { Check, CheckCheck } from "lucide-react"
 
+const highlightMatch = (text, query) => {
+  if (!query || !query.trim() || !text) return text;
+  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
+  const parts = text.split(regex);
+
+  return parts.map((part, i) =>
+    regex.test(part) ? (
+      <span key={i} className="bg-yellow-400 text-black px-0.5 rounded font-medium">
+        {part}
+      </span>
+    ) : (
+      part
+    )
+  );
+};
+
 const ChatContainer = () => {
   const {
     messages,
@@ -26,6 +42,7 @@ const ChatContainer = () => {
     unsubscribeFromPresence,
     emitViewingChat,
     emitLeftChat,
+    searchQuery
   } = useChatStore();
 
   const { authUser, onlineUsers } = useAuthStore();
@@ -212,7 +229,7 @@ const ChatContainer = () => {
                           />
                         )}
                         {message.text && (
-                          <p className="text-sm leading-relaxed">{message.text}</p>
+                          <p className="text-sm leading-relaxed">{highlightMatch(message.text,searchQuery)}</p>
                         )}
                         {message.linkPreview && (
                           <LinkPreviewCard

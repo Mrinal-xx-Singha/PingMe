@@ -5,7 +5,8 @@ import {
   getMessages,
   sendMessage,
   getGroupMessages,
-  sendGroupMessage
+  sendGroupMessage,
+  toggleReaction
 } from "../controllers/message.controller.js";
 const router = express.Router();
 
@@ -18,5 +19,7 @@ router.post("/group/send/:groupId", protectRoute, sendGroupMessage)
 router.get("/:id", protectRoute, getMessages);
 // send messages post method 
 router.post("/send/:id", protectRoute, sendMessage)
+// toggle emoji reaction on a message
+router.put("/:id/react", protectRoute, toggleReaction);
 
 export default router;

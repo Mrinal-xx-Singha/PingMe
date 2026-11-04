@@ -240,4 +240,64 @@ export const sendGroupMessage = async (req, res) => {
     console.error("Error in sendGroupMessage:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+};
+
+export const toggleReaction = async (req, res) => {
+  try {
+    const { id: messageId } = req.params;
+    const { emoji } = req.body;
+    const userId = req.user._id;
+
+    if (!emoji) {
+      return res.status(400).json({ error: "Emoji is required" });
+    }
+
+    const message = await Message.findById(messageId);
+    if (!message) {
+      return res.status(404).json({ error: "Message not found" });
+    }
+
+    if (!message.reactions) {
+      message.reactions = [];
+    }
+
+    // Check if this user already reacted with this exact emoji
+    const existingIndex = message.reactions.findIndex(
+      (r) => r.userId.toString() === userId.toString() && r.emoji === emoji
+    );
+
+    if (existingIndex > -1) {
+      // Toggle off: remove reaction
+      message.reactions.splice(existingIndex, 1);
+    } else {
+      // Remove any previous reaction by this user on this message
+      message.reactions = message.reactions.filter(
+        (r) => r.userId.toString() !== userId.toString()
+      );
+      // Add the new reaction
+      message.reactions.push({ userId, emoji });
+    }
+
+    await message.save();
+
+    const reactionPayload = {
+      messageId: message._id,
+      reactions: message.reactions,
+    };
+
+    if (message.groupId) {
+      io.to(message.groupId.toString()).emit("messageReactionUpdated", reactionPayload);
+    } else {
+      const receiverSocketId = getReceiverSocketId(message.receiverId);
+      const senderSocketId = getReceiverSocketId(message.senderId);
+
+      if (receiverSocketId) io.to(receiverSocketId).emit("messageReactionUpdated", reactionPayload);
+      if (senderSocketId) io.to(senderSocketId).emit("messageReactionUpdated", reactionPayload);
+    }
+
+    res.status(200).json(message.reactions);
+  } catch (error) {
+    console.error("Error in toggleReaction controller:", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

@@ -25,6 +25,10 @@ const highlightMatch = (text, query) => {
   );
 };
 
+const AVAILABLE_EMOJIS = ["👍", "❤️", "😂", "😮", "🔥"]
+
+
+
 const ChatContainer = () => {
   const {
     messages,
@@ -42,7 +46,8 @@ const ChatContainer = () => {
     unsubscribeFromPresence,
     emitViewingChat,
     emitLeftChat,
-    searchQuery
+    searchQuery,
+    reactToMessage
   } = useChatStore();
 
   const { authUser, onlineUsers } = useAuthStore();
@@ -183,10 +188,18 @@ const ChatContainer = () => {
             } else if (selectedUser.isGroup) {
               const sendUser = useChatStore.getState().users.find(u => u._id === message.senderId)
               profilePic = sendUser?.profilePic || "/avatar.png"
-            }else{
+            } else {
               profilePic = selectedUser.profilePic || "/avatar.png"
             }
 
+
+            const reactionCounts = (message.reactions || []).reduce((acc, curr) => {
+              acc[curr.emoji] = acc[curr.emoji] || { count: 0, users: [] }
+              acc[curr.emoji].count += 1
+              acc[curr.emoji].users.push(curr.userId)
+
+              return acc
+            }, {})
 
 
 
@@ -196,7 +209,7 @@ const ChatContainer = () => {
                 {showDateSeparator && (
                   <div className="flex justify-center my-4">
                     <span
-                    className="text-[11px] font-medium bg-base-300 text-base-content/70 px-3 py-1 rounded-full shadow-sm select-none"
+                      className="text-[11px] font-medium bg-base-300 text-base-content/70 px-3 py-1 rounded-full shadow-sm select-none"
                     >
                       {currentMsgDate}
                     </span>
@@ -213,8 +226,24 @@ const ChatContainer = () => {
                         <img src={profilePic} alt="profile-pic" className="size-full object-cover" />
                       </div>
                     )}
-
-                    <div className="flex flex-col items-end">
+                    <div className={`relative group flex flex-col ${isCurrentUser ? 'items-end' : 'items-start'}`}>
+                      {/* ✅ Hover bar moved inside here */}
+                      <div
+                        className={`absolute -top-7 ${isCurrentUser ? "right-2" : "left-2"} 
+      hidden group-hover:flex items-center gap-1 bg-base-300/90 backdrop-blur-sm 
+      border border-base-200 px-2 py-0.5 rounded-full shadow-md z-10 animate-fade-in`}
+                      >
+                        {AVAILABLE_EMOJIS.map((emoji) => (
+                          <button
+                            key={emoji}
+                            onClick={() => reactToMessage(message._id, emoji)}
+                            className="hover:scale-125 transition-transform text-sm px-0.5"
+                            type="button"
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
                       <div
                         className={`rounded-2xl px-4 py-2.5 shadow-sm ${isCurrentUser
                           ? "bg-primary text-primary-content"
@@ -229,7 +258,7 @@ const ChatContainer = () => {
                           />
                         )}
                         {message.text && (
-                          <p className="text-sm leading-relaxed">{highlightMatch(message.text,searchQuery)}</p>
+                          <p className="text-sm leading-relaxed">{highlightMatch(message.text, searchQuery)}</p>
                         )}
                         {message.linkPreview && (
                           <LinkPreviewCard
@@ -239,6 +268,29 @@ const ChatContainer = () => {
 
                       </div>
                       <div className="flex items-center gap-1 mt-1">
+                        {/* Active Reactions Pills */}
+                        {Object.keys(reactionCounts).length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1 px-1">
+                            {Object.entries(reactionCounts).map(([emoji, data]) => {
+                              const hasReacted = data.users.includes(authUser._id);
+                              return (
+                                <button
+                                  key={emoji}
+                                  type="button"
+                                  onClick={() => reactToMessage(message._id, emoji)}
+                                  className={`text-xs flex items-center gap-1 px-1.5 py-0.5 rounded-full border transition-all ${hasReacted
+                                    ? "bg-primary/20 border-primary text-primary-content"
+                                    : "bg-base-200 border-base-300 text-base-content/80 hover:bg-base-300"
+                                    }`}
+                                  title={`${data.count} reaction${data.count > 1 ? "s" : ""}`}
+                                >
+                                  <span>{emoji}</span>
+                                  <span className="font-semibold text-[10px]">{data.count}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
 
                         <time className="text-[10px] text-base-content/60">
                           {formatMessageTime(message.createdAt)}

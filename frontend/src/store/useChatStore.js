@@ -249,6 +249,19 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  reactToMessage: async (messageId, emoji) => {
+    try {
+      const res = await axiosInstance.put(`/message/${messageId}/react`, { emoji })
+      // Optimistically update the message reactions in state
+      set((state) => ({
+        messages: state.messages.map((msg) => msg._id === messageId ? { ...msg, reactions: res.data } : msg)
+      }))
+    } catch (error) {
+      toast.error(error.response?.data?.error || "Failed to react");
+    }
+
+  },
+
   subscribeToMessages: () => {
     const { selectedUser } = get();
     if (!selectedUser) return;
@@ -274,12 +287,19 @@ export const useChatStore = create((set, get) => ({
       }))
 
     })
+
+    socket.on("messageReactionUpdated", ({ messageId, reactions }) => {
+      set((state) => ({
+        messages: state.messages.map((msg) => msg._id === messageId ? { ...msg, reactions } : msg)
+      }))
+    })
   },
 
   unsubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
     socket.off("newMessage");
     socket.off("linkPreviewReady")
+    socket.off("messageReactionUpdated")
   },
 
   setSelected: (selectedUser) => set({ selectedUser, searchQuery: "" }),
